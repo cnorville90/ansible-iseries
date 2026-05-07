@@ -7,9 +7,7 @@
     controller_host: https://xerxes.thenorvilles.com
     controller_username: cnorville
     controller_validate_certs: false
-
-  module_defaults:
-    group/infra.aap_configuration.controller:
+    controller_connection: &controller
       controller_host: "{{ controller_host }}"
       controller_username: "{{ controller_username }}"
       controller_oauthtoken: "{{ controller_token }}"
@@ -19,6 +17,7 @@
 
     - name: Create iSeries SSH machine credential
       infra.aap_configuration.credential:
+        <<: *controller
         name: "pub400-ssh"
         description: "SSH key credential for pub400.com iSeries"
         organization: Default
@@ -30,6 +29,7 @@
 
     - name: Create iSeries inventory
       infra.aap_configuration.inventory:
+        <<: *controller
         name: "IBM iSeries — pub400"
         description: "Public IBM i system at pub400.com"
         organization: Default
@@ -37,6 +37,7 @@
 
     - name: Add iSeries host to inventory
       infra.aap_configuration.host:
+        <<: *controller
         name: pub400.com
         inventory: "IBM iSeries — pub400"
         variables:
@@ -47,6 +48,7 @@
 
     - name: Create SCM credential for git repo
       infra.aap_configuration.credential:
+        <<: *controller
         name: "ansible-iseries-repo"
         description: "SCM credential for ansible-iseries project"
         organization: Default
@@ -55,6 +57,7 @@
 
     - name: Create iSeries project
       infra.aap_configuration.project:
+        <<: *controller
         name: "ansible-iseries"
         description: "IBM iSeries demo suite playbooks"
         organization: Default
@@ -67,6 +70,7 @@
 
     - name: Create Demo 1 job template
       infra.aap_configuration.job_template:
+        <<: *controller
         name: "Demo 1 — IBM i System Discovery"
         description: "Gather and display IBM i system facts from pub400.com"
         organization: Default
@@ -80,6 +84,7 @@
 
     - name: Launch Demo 1 job template
       infra.aap_configuration.job_launch:
+        <<: *controller
         name: "Demo 1 — IBM i System Discovery"
         wait: true
       register: job_result
