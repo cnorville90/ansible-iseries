@@ -1,0 +1,10 @@
+---
+- name: Gather facts from an IBM iSeries server
+  hosts: iseries
+  gather_facts: false
+
+  tasks: 
+
+    - name: Gather facts
+      ibm.power_ibmi.ibmi_facts:
+

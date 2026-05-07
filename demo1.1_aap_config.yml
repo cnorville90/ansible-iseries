@@ -1,0 +1,115 @@
+---
+- name: "Demo 1.1 — Configure AAP Controller for iSeries Demo Suite"
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    controller_host: https://xerxes.thenorvilles.com
+    controller_username: cnorville
+    controller_validate_certs: false
+
+  tasks:
+
+    - name: Create iSeries SSH machine credential
+      infra.aap_configuration.credential:
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_username }}"
+        controller_oauthtoken: "{{ controller_token }}"
+        validate_certs: "{{ controller_validate_certs }}"
+        name: "pub400-ssh"
+        description: "SSH key credential for pub400.com iSeries"
+        organization: Default
+        credential_type: Machine
+        inputs:
+          username: CNORVILLE
+          ssh_key_data: "{{ lookup('file', 'id_rsa_apd') }}"
+        state: present
+
+    - name: Create iSeries inventory
+      infra.aap_configuration.inventory:
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_username }}"
+        controller_oauthtoken: "{{ controller_token }}"
+        validate_certs: "{{ controller_validate_certs }}"
+        name: "IBM iSeries — pub400"
+        description: "Public IBM i system at pub400.com"
+        organization: Default
+        state: present
+
+    - name: Add iSeries host to inventory
+      infra.aap_configuration.host:
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_username }}"
+        controller_oauthtoken: "{{ controller_token }}"
+        validate_certs: "{{ controller_validate_certs }}"
+        name: pub400.com
+        inventory: "IBM iSeries — pub400"
+        variables:
+          ansible_user: CNORVILLE
+          ansible_port: 2222
+          ansible_python_interpreter: /QOpenSys/pkgs/bin/python3.6
+        state: present
+
+    - name: Create SCM credential for git repo
+      infra.aap_configuration.credential:
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_username }}"
+        controller_oauthtoken: "{{ controller_token }}"
+        validate_certs: "{{ controller_validate_certs }}"
+        name: "ansible-iseries-repo"
+        description: "SCM credential for ansible-iseries project"
+        organization: Default
+        credential_type: Source Control
+        state: present
+
+    - name: Create iSeries project
+      infra.aap_configuration.project:
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_username }}"
+        controller_oauthtoken: "{{ controller_token }}"
+        validate_certs: "{{ controller_validate_certs }}"
+        name: "ansible-iseries"
+        description: "IBM iSeries demo suite playbooks"
+        organization: Default
+        scm_type: git
+        scm_url: "{{ scm_url }}"
+        scm_branch: main
+        scm_clean: true
+        scm_update_on_launch: true
+        state: present
+      vars:
+        scm_url: "{{ lookup('env', 'SCM_URL') | default('') }}"
+
+    - name: Create Demo 1 job template
+      infra.aap_configuration.job_template:
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_username }}"
+        controller_oauthtoken: "{{ controller_token }}"
+        validate_certs: "{{ controller_validate_certs }}"
+        name: "Demo 1 — IBM i System Discovery"
+        description: "Gather and display IBM i system facts from pub400.com"
+        organization: Default
+        project: "ansible-iseries"
+        playbook: demo1_ibmi_facts.yml
+        inventory: "IBM iSeries — pub400"
+        credentials:
+          - "pub400-ssh"
+        ask_variables_on_launch: false
+        state: present
+
+    - name: Launch Demo 1 job template
+      infra.aap_configuration.job_launch:
+        controller_host: "{{ controller_host }}"
+        controller_username: "{{ controller_username }}"
+        controller_oauthtoken: "{{ controller_token }}"
+        validate_certs: "{{ controller_validate_certs }}"
+        name: "Demo 1 — IBM i System Discovery"
+        wait: true
+      register: job_result
+
+    - name: Show job result
+      ansible.builtin.debug:
+        msg:
+          - "Job ID     : {{ job_result.id }}"
+          - "Status     : {{ job_result.status }}"
+          - "URL        : {{ controller_host }}/#/jobs/playbook/{{ job_result.id }}"

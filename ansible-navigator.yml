@@ -1,0 +1,15 @@
+---
+ansible-navigator:
+  ansible:
+    inventory:
+      entries:
+      - /home/cnorville/Ansible/ansible-iseries/inventory
+    cmdline: "--vault-password-file /home/cnorville/Ansible/ansible-iseries/.vault_pass -e @/home/cnorville/Ansible/ansible-iseries/vault.yml"
+  execution-environment:
+    image: localhost/ee-iseries:latest
+    pull:
+      policy: missing
+  playbook-artifact:
+    enable: false
+  mode: stdout
+

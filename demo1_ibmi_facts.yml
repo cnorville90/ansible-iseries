@@ -1,0 +1,71 @@
+---
+- name: "Demo 1 — IBM iSeries System Discovery"
+  hosts: iseries
+  gather_facts: false
+
+  tasks:
+
+    - name: Gather IBM i system facts
+      ibm.power_ibmi.ibmi_facts:
+        filter: "*"
+      register: ibmi_info
+
+    - name: System overview
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " IBM i System Discovery"
+          - "=============================="
+          - "System Name    : {{ ibmi_info.ansible_facts.system_name }}"
+          - "Host Name      : {{ ibmi_info.ansible_facts.system_info.HOST_NAME }}"
+          - "OS             : {{ ibmi_info.ansible_facts.system_info.OS_NAME }} v{{ ibmi_info.ansible_facts.system_info.OS_VERSION }}.{{ ibmi_info.ansible_facts.system_info.OS_RELEASE }}"
+          - "Version        : {{ ibmi_info.ansible_facts.version_release }}"
+          - "Machine Type   : {{ ibmi_info.ansible_facts.system_status.MACHINE_TYPE }}-{{ ibmi_info.ansible_facts.system_status.MACHINE_MODEL | trim }}"
+          - "Serial Number  : {{ ibmi_info.ansible_facts.system_status.SERIAL_NUMBER | trim }}"
+          - "Partitions     : {{ ibmi_info.ansible_facts.system_status.NUMBER_OF_PARTITIONS }}"
+          - "Partition ID   : {{ ibmi_info.ansible_facts.system_status.PARTITION_ID }}"
+          - "------------------------------"
+          - "CPUs           : {{ ibmi_info.ansible_facts.system_info.CONFIGURED_CPUS }}"
+          - "Memory (MB)    : {{ (ibmi_info.ansible_facts.system_info.CONFIGURED_MEMORY / 1024) | int }} GB"
+          - "CPU Capacity   : {{ ibmi_info.ansible_facts.system_status.CURRENT_CPU_CAPACITY }}"
+          - "CPU Sharing    : {{ ibmi_info.ansible_facts.system_status.CPU_SHARING_ATTRIBUTE }}"
+          - "------------------------------"
+          - "Total Jobs     : {{ ibmi_info.ansible_facts.system_status.TOTAL_JOBS_IN_SYSTEM }}"
+          - "Active Jobs    : {{ ibmi_info.ansible_facts.system_status.ACTIVE_JOBS_IN_SYSTEM }}"
+          - "Active Threads : {{ ibmi_info.ansible_facts.system_status.ACTIVE_THREADS_IN_SYSTEM }}"
+          - "Users Signed On: {{ ibmi_info.ansible_facts.system_status.JOBS_SIGNED_ON }}"
+          - "------------------------------"
+          - "System ASP     : {{ ibmi_info.ansible_facts.system_status.SYSTEM_ASP_USED }}% used"
+          - "Temp Storage   : {{ ibmi_info.ansible_facts.system_status.CURRENT_TEMPORARY_STORAGE }} MB"
+          - "IPL Mode       : {{ ibmi_info.ansible_facts.system_status.IPL_MODE }}"
+          - "IPL Type       : {{ ibmi_info.ansible_facts.system_status.IPL_TYPE }}"
+          - "Restricted     : {{ ibmi_info.ansible_facts.system_status.RESTRICTED_STATE }}"
+          - "=============================="
+
+    - name: Key system values
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " Key System Values"
+          - "=============================="
+          - "QSECURITY      : {{ ibmi_info.ansible_facts.system_values.QSECURITY }}"
+          - "QCCSID         : {{ ibmi_info.ansible_facts.system_values.QCCSID }}"
+          - "QLANGID        : {{ ibmi_info.ansible_facts.system_values.QLANGID }}"
+          - "QCNTRYID       : {{ ibmi_info.ansible_facts.system_values.QCNTRYID }}"
+          - "QTIMZON        : {{ ibmi_info.ansible_facts.system_values.QTIMZON }}"
+          - "QUTCOFFSET     : {{ ibmi_info.ansible_facts.system_values.QUTCOFFSET }}"
+          - "QPWDLVL        : {{ ibmi_info.ansible_facts.system_values.QPWDLVL }}"
+          - "QMAXSIGN       : {{ ibmi_info.ansible_facts.system_values.QMAXSIGN }}"
+          - "QSYSLIBL       : {{ ibmi_info.ansible_facts.system_values.QSYSLIBL }}"
+          - "=============================="
+
+    - name: Network interfaces
+      ansible.builtin.debug:
+        msg: "{{ item.INTERNET_ADDRESS }} ({{ item.CONNECTION_TYPE }}) — {{ item.LINE_DESCRIPTION }} — {{ item.INTERFACE_STATUS }}"
+      loop: "{{ ibmi_info.ansible_facts.tcpip_info }}"
+      loop_control:
+        label: "{{ item.INTERNET_ADDRESS }}"
+
+    - name: DNS servers
+      ansible.builtin.debug:
+        msg: "DNS: {{ ibmi_info.ansible_facts.dns_info | join(', ') }}"

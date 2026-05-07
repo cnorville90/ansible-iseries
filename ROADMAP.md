@@ -36,7 +36,7 @@ ansible_python_interpreter=/QOpenSys/pkgs/bin/python3
 **Goal:** Validate full connectivity stack; gather OS version, PTF levels, hardware info.
 
 - **Modules:** `ibmi_facts`
-- **Status:** [ ] Not started
+- **Status:** [x] Complete
 - **Talking points:**
   - Zero-touch inventory enrichment
   - Dynamic hostvars for conditional logic in downstream playbooks
