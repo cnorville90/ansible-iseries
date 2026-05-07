@@ -41,7 +41,7 @@
           ansible_port: 2222
           ansible_python_interpreter: /QOpenSys/pkgs/bin/python3.6
 
-    controller_host_groups:
+    controller_groups:
       - name: iseries
         inventory: "IBM iSeries — pub400"
         hosts:
