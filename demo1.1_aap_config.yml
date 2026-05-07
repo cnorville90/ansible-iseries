@@ -72,13 +72,11 @@
         description: "IBM iSeries demo suite playbooks"
         organization: Default
         scm_type: git
-        scm_url: "{{ scm_url }}"
+        scm_url: "https://github.com/cnorville90/ansible-iseries.git"
         scm_branch: main
         scm_clean: true
         scm_update_on_launch: true
         state: present
-      vars:
-        scm_url: "{{ lookup('env', 'SCM_URL') | default('') }}"
 
     - name: Create Demo 1 job template
       infra.aap_configuration.job_template:
