@@ -8,14 +8,17 @@
     controller_username: cnorville
     controller_validate_certs: false
 
+  module_defaults:
+    group/infra.aap_configuration.controller:
+      controller_host: "{{ controller_host }}"
+      controller_username: "{{ controller_username }}"
+      controller_oauthtoken: "{{ controller_token }}"
+      validate_certs: "{{ controller_validate_certs }}"
+
   tasks:
 
     - name: Create iSeries SSH machine credential
       infra.aap_configuration.credential:
-        controller_host: "{{ controller_host }}"
-        controller_username: "{{ controller_username }}"
-        controller_oauthtoken: "{{ controller_token }}"
-        validate_certs: "{{ controller_validate_certs }}"
         name: "pub400-ssh"
         description: "SSH key credential for pub400.com iSeries"
         organization: Default
@@ -27,10 +30,6 @@
 
     - name: Create iSeries inventory
       infra.aap_configuration.inventory:
-        controller_host: "{{ controller_host }}"
-        controller_username: "{{ controller_username }}"
-        controller_oauthtoken: "{{ controller_token }}"
-        validate_certs: "{{ controller_validate_certs }}"
         name: "IBM iSeries — pub400"
         description: "Public IBM i system at pub400.com"
         organization: Default
@@ -38,10 +37,6 @@
 
     - name: Add iSeries host to inventory
       infra.aap_configuration.host:
-        controller_host: "{{ controller_host }}"
-        controller_username: "{{ controller_username }}"
-        controller_oauthtoken: "{{ controller_token }}"
-        validate_certs: "{{ controller_validate_certs }}"
         name: pub400.com
         inventory: "IBM iSeries — pub400"
         variables:
@@ -52,10 +47,6 @@
 
     - name: Create SCM credential for git repo
       infra.aap_configuration.credential:
-        controller_host: "{{ controller_host }}"
-        controller_username: "{{ controller_username }}"
-        controller_oauthtoken: "{{ controller_token }}"
-        validate_certs: "{{ controller_validate_certs }}"
         name: "ansible-iseries-repo"
         description: "SCM credential for ansible-iseries project"
         organization: Default
@@ -64,10 +55,6 @@
 
     - name: Create iSeries project
       infra.aap_configuration.project:
-        controller_host: "{{ controller_host }}"
-        controller_username: "{{ controller_username }}"
-        controller_oauthtoken: "{{ controller_token }}"
-        validate_certs: "{{ controller_validate_certs }}"
         name: "ansible-iseries"
         description: "IBM iSeries demo suite playbooks"
         organization: Default
@@ -80,10 +67,6 @@
 
     - name: Create Demo 1 job template
       infra.aap_configuration.job_template:
-        controller_host: "{{ controller_host }}"
-        controller_username: "{{ controller_username }}"
-        controller_oauthtoken: "{{ controller_token }}"
-        validate_certs: "{{ controller_validate_certs }}"
         name: "Demo 1 — IBM i System Discovery"
         description: "Gather and display IBM i system facts from pub400.com"
         organization: Default
@@ -97,10 +80,6 @@
 
     - name: Launch Demo 1 job template
       infra.aap_configuration.job_launch:
-        controller_host: "{{ controller_host }}"
-        controller_username: "{{ controller_username }}"
-        controller_oauthtoken: "{{ controller_token }}"
-        validate_certs: "{{ controller_validate_certs }}"
         name: "Demo 1 — IBM i System Discovery"
         wait: true
       register: job_result
