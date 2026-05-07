@@ -41,6 +41,12 @@
           ansible_port: 2222
           ansible_python_interpreter: /QOpenSys/pkgs/bin/python3.6
 
+    controller_groups:
+      - name: iseries
+        inventory: "IBM iSeries — pub400"
+        hosts:
+          - pub400.com
+
     controller_projects:
       - name: "ansible-iseries"
         description: "IBM iSeries demo suite playbooks"
@@ -68,6 +74,7 @@
     - infra.aap_configuration.controller_credentials
     - infra.aap_configuration.controller_inventories
     - infra.aap_configuration.controller_hosts
+    - infra.aap_configuration.controller_groups
     - infra.aap_configuration.controller_projects
     - infra.aap_configuration.controller_job_templates
 
