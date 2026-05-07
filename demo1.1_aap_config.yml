@@ -4,10 +4,10 @@
   gather_facts: false
 
   vars:
-    controller_hostname: https://xerxes.thenorvilles.com
-    controller_username: cnorville
-    controller_password: "{{ controller_token }}"
-    controller_validate_certs: false
+    aap_hostname: https://xerxes.thenorvilles.com
+    aap_username: cnorville
+    aap_token: "{{ controller_token }}"
+    aap_validate_certs: false
 
     controller_credentials:
       - name: "pub400-ssh"
@@ -69,10 +69,10 @@
   gather_facts: false
 
   vars:
-    controller_hostname: https://xerxes.thenorvilles.com
-    controller_username: cnorville
-    controller_password: "{{ controller_token }}"
-    controller_validate_certs: false
+    aap_hostname: https://xerxes.thenorvilles.com
+    aap_username: cnorville
+    aap_token: "{{ controller_token }}"
+    aap_validate_certs: false
 
     controller_launch_jobs:
       - name: "Demo 1 — IBM i System Discovery"
