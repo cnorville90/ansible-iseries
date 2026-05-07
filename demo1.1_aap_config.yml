@@ -71,19 +71,3 @@
     - infra.aap_configuration.controller_projects
     - infra.aap_configuration.controller_job_templates
 
-- name: "Launch Demo 1 job template"
-  hosts: localhost
-  gather_facts: false
-
-  vars:
-    aap_hostname: https://xerxes.thenorvilles.com
-    aap_username: cnorville
-    aap_token: "{{ controller_token }}"
-    aap_validate_certs: false
-
-    controller_launch_jobs:
-      - name: "Demo 1 — IBM i System Discovery"
-        wait: true
-
-  roles:
-    - infra.aap_configuration.controller_job_launch
