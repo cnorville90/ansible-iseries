@@ -15,18 +15,8 @@ the public iSeries system at **pub400.com**.
 | Target host | `pub400.com` |
 | Protocol | SSH (PASE) |
 | Collection | `ibm.power_ibmi` |
-| Python on iSeries | `/QOpenSys/pkgs/bin/python3` |
+| Python on iSeries | `/QOpenSys/pkgs/bin/python3.6` |
 | AAP Version | 2.6 |
-
-### Inventory template
-
-```ini
-[ibmi]
-pub400.com ansible_user=YOURID ansible_ssh_pass=YOURPWD
-
-[ibmi:vars]
-ansible_python_interpreter=/QOpenSys/pkgs/bin/python3
-```
 
 ---
 
@@ -66,7 +56,7 @@ ansible_python_interpreter=/QOpenSys/pkgs/bin/python3
 
 ---
 
-### Demo 5 — User Profile Management (`ibmi_user_and_group`)
+### Demo 4 — User Profile Management (`ibmi_user_and_group`)
 **Goal:** Create a demo user profile with defined attributes, then remove it — idempotently.
 
 - **Modules:** `ibmi_user_and_group`
@@ -77,7 +67,7 @@ ansible_python_interpreter=/QOpenSys/pkgs/bin/python3
 
 ---
 
-### Demo 6 — Object Save & Restore (`ibmi_object_save` / `ibmi_object_restore`)
+### Demo 5 — Object Save & Restore (`ibmi_object_save` / `ibmi_object_restore`)
 **Goal:** Save a library or object to a save file, fetch it locally, and restore it.
 
 - **Modules:** `ibmi_object_save`, `ibmi_object_restore`, `ibmi_fetch`
@@ -88,7 +78,7 @@ ansible_python_interpreter=/QOpenSys/pkgs/bin/python3
 
 ---
 
-### Demo 7 — Job & Subsystem Operations
+### Demo 6 — Job & Subsystem Operations
 **Goal:** Query active jobs, display subsystem status, and submit a batch job.
 
 - **Modules:** `ibmi_job`, `ibmi_display_subsystem`, `ibmi_submit_job`
@@ -99,7 +89,7 @@ ansible_python_interpreter=/QOpenSys/pkgs/bin/python3
 
 ---
 
-### Demo 8 — PTF / Fix Compliance (`ibmi_fix_group_check` / `ibmi_fix_compare`)
+### Demo 7 — PTF / Fix Compliance (`ibmi_fix_group_check` / `ibmi_fix_compare`)
 **Goal:** Check installed PTF groups against PSP server recommendations and report gaps.
 
 - **Modules:** `ibmi_fix_group_check`, `ibmi_fix_compare`
@@ -113,9 +103,9 @@ ansible_python_interpreter=/QOpenSys/pkgs/bin/python3
 ## Suggested Build Order
 
 ```
-Demo 1 (facts) → Demo 2 (sysval) → Demo 3 (CL) → Demo 4 (SQL)
-     → Demo 5 (users) → Demo 7 (jobs) → Demo 6 (save/restore) → Demo 8 (PTF)
+Demo 1 (facts) → Demo 2 (sysval) → Demo 3 (SQL) → Demo 4 (users)
+     → Demo 5 (save/restore) → Demo 6 (jobs) → Demo 7 (PTF)
 ```
 
-Start with read-only, non-destructive demos (1–4) to build confidence and
-validate access, then progress to state-changing operations (5–8).
+Start with read-only, non-destructive demos (1–3) to build confidence and
+validate access, then progress to state-changing operations (4–7).
