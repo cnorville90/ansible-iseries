@@ -71,7 +71,7 @@ the public iSeries system at **pub400.com**.
 **Goal:** Check installed PTF groups and report fix levels.
 
 - **Modules:** `ibmi_fix_group_check`
-- **Status:** [ ] Not started
+- **Status:** [x] Complete
 - **Talking points:**
   - Automated security patch compliance reporting
   - Foundation for a full remediation workflow: check → download → apply

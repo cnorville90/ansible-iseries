@@ -1,0 +1,50 @@
+---
+- name: "Demo 5 — IBM i PTF / Fix Compliance"
+  hosts: iseries
+  gather_facts: false
+
+  vars:
+    ptf_groups:
+      - { group: 'SF99730', description: 'Cumulative PTF Package' }
+      - { group: 'SF99740', description: 'DB2 for i' }
+      - { group: 'SF99950', description: 'Cryptographic Service Provider' }
+      - { group: 'SF99665', description: 'HTTP Server for i' }
+      - { group: 'SF99662', description: 'Java for IBM i' }
+
+  tasks:
+
+    - name: Check PTF group levels against IBM PSP server
+      ibm.power_ibmi.ibmi_fix_group_check:
+        groups:
+          - "{{ item.group }}"
+      register: ptf_results
+      loop: "{{ ptf_groups }}"
+      loop_control:
+        label: "{{ item.group }}"
+
+    - name: Display PTF group compliance report
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " PTF Group: {{ item.group_info[0].ptf_group_number }}"
+          - "=============================="
+          - "Description  : {{ item.group_info[0].description }}"
+          - "Release      : {{ item.group_info[0].release }}"
+          - "Latest Level : {{ item.group_info[0].ptf_group_level }}"
+          - "Released     : {{ item.group_info[0].release_date }}"
+          - "PSP URL      : {{ item.group_info[0].url }}"
+          - "=============================="
+      loop: "{{ ptf_results.results }}"
+      loop_control:
+        label: "{{ item.group_info[0].ptf_group_number }}"
+
+    - name: Display compliance summary
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " PTF Compliance Summary"
+          - "=============================="
+          - "PTF Groups Checked : {{ ptf_results.results | length }}"
+          - "Data Source        : IBM PSP Server"
+          - "Recommendation     : Review latest levels and apply via SNDPTFORD"
+          - "=============================="

@@ -103,6 +103,17 @@
           - "pub400-ssh"
         ask_variables_on_launch: false
 
+      - name: "Demo 5 — IBM i PTF Compliance"
+        description: "Check PTF group levels against IBM PSP server"
+        organization: Default
+        project: "ansible-iseries"
+        playbook: demo5_ibmi_ptf.yml
+        inventory: "IBM iSeries — pub400"
+        execution_environment: "ee-iseries"
+        credentials:
+          - "pub400-ssh"
+        ask_variables_on_launch: false
+
   roles:
     - infra.aap_configuration.controller_execution_environments
     - infra.aap_configuration.controller_credentials
