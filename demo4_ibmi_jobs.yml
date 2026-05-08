@@ -1,0 +1,63 @@
+---
+- name: "Demo 4 — IBM i Job & Subsystem Operations"
+  hosts: iseries
+  gather_facts: false
+
+  tasks:
+
+    - name: Query active subsystems
+      ibm.power_ibmi.ibmi_display_subsystem:
+        subsystem: "*ALL"
+      register: subsystems
+
+    - name: Parse subsystem lines
+      ansible.builtin.set_fact:
+        subsystem_rows: >-
+          {{
+            subsystems.subsystems
+            | select('match', '^\s{6}\S')
+            | reject('match', '.*Subsystem\s+Number.*')
+            | reject('match', '.*\*\s*\*\s*\*.*')
+            | reject('match', '.*pub400\.com.*')
+            | map('regex_replace', '^\s+(\S+)\s+\d+\s+(\d+)\s+(\S+).*', '\1|\2|\3')
+            | list
+          }}
+
+    - name: Display active subsystems
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " Active Subsystems"
+          - "=============================="
+          - "{{ item.split('|')[0] | trim }} | Active Jobs: {{ item.split('|')[1] }} | {{ item.split('|')[2] }}"
+      loop: "{{ subsystem_rows }}"
+      loop_control:
+        label: "{{ item.split('|')[0] | trim }}"
+
+    - name: Subsystem summary
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " Subsystem Summary"
+          - "=============================="
+          - "Total Active Subsystems : {{ subsystem_rows | length }}"
+          - "Total Active Jobs       : {{ subsystem_rows | map('split', '|') | map(attribute=1) | map('int') | sum }}"
+          - "=============================="
+
+    - name: Query active batch jobs
+      ibm.power_ibmi.ibmi_job:
+        type: "*BATCH"
+        status: "*ACTIVE"
+      register: batch_jobs
+
+    - name: Display top 10 batch jobs
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " Active Batch Jobs (top 10)"
+          - "=============================="
+          - "{{ item.JOB_NAME }} | {{ item.JOB_SUBSYSTEM }} | {{ item.JOB_TYPE_ENHANCED }} | Active Since: {{ item.JOB_ACTIVE_TIME }}"
+      loop: "{{ batch_jobs.job_info[:10] }}"
+      loop_control:
+        label: "{{ item.JOB_NAME }}"
+      when: batch_jobs.job_info | length > 0

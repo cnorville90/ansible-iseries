@@ -60,7 +60,7 @@ the public iSeries system at **pub400.com**.
 **Goal:** Query active jobs and display subsystem status.
 
 - **Modules:** `ibmi_job`, `ibmi_display_subsystem`
-- **Status:** [ ] Not started
+- **Status:** [x] Complete
 - **Talking points:**
   - Workload visibility and operational reporting
   - Replace manual operator tasks with repeatable, audited playbook runs

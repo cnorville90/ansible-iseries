@@ -92,6 +92,17 @@
           - "pub400-ssh"
         ask_variables_on_launch: false
 
+      - name: "Demo 4 — IBM i Job & Subsystem Operations"
+        description: "Query active jobs and display subsystem status"
+        organization: Default
+        project: "ansible-iseries"
+        playbook: demo4_ibmi_jobs.yml
+        inventory: "IBM iSeries — pub400"
+        execution_environment: "ee-iseries"
+        credentials:
+          - "pub400-ssh"
+        ask_variables_on_launch: false
+
   roles:
     - infra.aap_configuration.controller_execution_environments
     - infra.aap_configuration.controller_credentials
