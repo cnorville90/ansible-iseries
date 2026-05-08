@@ -114,6 +114,50 @@
           - "pub400-ssh"
         ask_variables_on_launch: false
 
+      - name: "Advanced Demo A — IBM i User Profile Management"
+        description: "Create, disable, and delete a user profile — requires *SECADM"
+        organization: Default
+        project: "ansible-iseries"
+        playbook: advanced_demo_a_ibmi_user.yml
+        inventory: "IBM iSeries — pub400"
+        execution_environment: "ee-iseries"
+        credentials:
+          - "pub400-ssh"
+        ask_variables_on_launch: false
+
+      - name: "Advanced Demo B — IBM i Object Save & Restore"
+        description: "Save a library to a save file, fetch to controller, and restore — requires *SAVSYS"
+        organization: Default
+        project: "ansible-iseries"
+        playbook: advanced_demo_b_ibmi_save_restore.yml
+        inventory: "IBM iSeries — pub400"
+        execution_environment: "ee-iseries"
+        credentials:
+          - "pub400-ssh"
+        ask_variables_on_launch: false
+
+      - name: "Advanced Demo C — IBM i PTF Download & Apply"
+        description: "Download PTF group from Fix Central and apply with delayed activation — requires *IOSYSCFG"
+        organization: Default
+        project: "ansible-iseries"
+        playbook: advanced_demo_c_ibmi_ptf_apply.yml
+        inventory: "IBM iSeries — pub400"
+        execution_environment: "ee-iseries"
+        credentials:
+          - "pub400-ssh"
+        ask_variables_on_launch: false
+
+      - name: "Advanced Demo D — IBM i Subsystem & Job Queue Control"
+        description: "Hold and release a job queue with SQL verification — requires *JOBCTL"
+        organization: Default
+        project: "ansible-iseries"
+        playbook: advanced_demo_d_ibmi_subsystem.yml
+        inventory: "IBM iSeries — pub400"
+        execution_environment: "ee-iseries"
+        credentials:
+          - "pub400-ssh"
+        ask_variables_on_launch: false
+
   roles:
     - infra.aap_configuration.controller_execution_environments
     - infra.aap_configuration.controller_credentials
