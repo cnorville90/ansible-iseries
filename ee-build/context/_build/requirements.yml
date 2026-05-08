@@ -1,0 +1,8 @@
+---
+collections:
+  - name: ibm.power_ibmi
+    source: https://cloud.redhat.com/api/automation-hub/
+  - name: ansible.utils
+    source: https://cloud.redhat.com/api/automation-hub/
+  - name: infra.aap_configuration
+    source: https://cloud.redhat.com/api/automation-hub/content/validated/

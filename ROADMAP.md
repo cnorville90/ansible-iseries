@@ -66,17 +66,6 @@ ansible_python_interpreter=/QOpenSys/pkgs/bin/python3
 
 ---
 
-### Demo 4 — CL Command Execution (`ibmi_cl_command`)
-**Goal:** Run native IBM i CL commands (e.g., `CHKOBJ`, `DSPLIBD`) from a playbook.
-
-- **Modules:** `ibmi_cl_command`
-- **Status:** [ ] Not started
-- **Talking points:**
-  - Bridge traditional AS/400 operations into modern automation workflows
-  - Operators can wrap any existing CL procedures without rewriting them
-
----
-
 ### Demo 5 — User Profile Management (`ibmi_user_and_group`)
 **Goal:** Create a demo user profile with defined attributes, then remove it — idempotently.
 
