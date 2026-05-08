@@ -23,13 +23,9 @@
             | list
           }}
 
-    - name: Display active subsystems
+    - name: Display subsystem report
       ansible.builtin.debug:
-        msg:
-          - "=============================="
-          - " Active Subsystems"
-          - "=============================="
-          - "{{ item.split('|')[0] | trim }} | Active Jobs: {{ item.split('|')[1] }} | {{ item.split('|')[2] }}"
+        msg: "{{ item.split('|')[0] | trim }} | Active Jobs: {{ item.split('|')[1] }}"
       loop: "{{ subsystem_rows }}"
       loop_control:
         label: "{{ item.split('|')[0] | trim }}"
@@ -52,12 +48,17 @@
 
     - name: Display top 10 batch jobs
       ansible.builtin.debug:
-        msg:
-          - "=============================="
-          - " Active Batch Jobs (top 10)"
-          - "=============================="
-          - "{{ item.JOB_NAME }} | {{ item.JOB_SUBSYSTEM }} | {{ item.JOB_TYPE_ENHANCED }} | Active Since: {{ item.JOB_ACTIVE_TIME }}"
+        msg: "{{ item.JOB_NAME }} | {{ item.JOB_TYPE_ENHANCED }} | Active Since: {{ item.JOB_ACTIVE_TIME }}"
       loop: "{{ batch_jobs.job_info[:10] }}"
       loop_control:
         label: "{{ item.JOB_NAME }}"
       when: batch_jobs.job_info | length > 0
+
+    - name: Batch jobs summary
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " Batch Jobs Summary"
+          - "=============================="
+          - "Total Active Batch Jobs : {{ batch_jobs.job_info | length }}"
+          - "=============================="
