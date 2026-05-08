@@ -1,5 +1,5 @@
 ---
-- name: "Demo 1.1 — Configure AAP Controller for iSeries Demo Suite"
+- name: "Configure AAP Controller for iSeries Demo Suite"
   hosts: localhost
   gather_facts: false
 
@@ -69,6 +69,17 @@
           - "pub400-ssh"
         ask_variables_on_launch: false
 
+      - name: "Demo 2 — IBM i System Value Audit"
+        description: "Read and report key IBM i system values for compliance"
+        organization: Default
+        project: "ansible-iseries"
+        playbook: demo2_ibmi_sysval.yml
+        inventory: "IBM iSeries — pub400"
+        execution_environment: "ee-iseries"
+        credentials:
+          - "pub400-ssh"
+        ask_variables_on_launch: false
+
   roles:
     - infra.aap_configuration.controller_execution_environments
     - infra.aap_configuration.controller_credentials
@@ -77,4 +88,3 @@
     - infra.aap_configuration.controller_host_groups
     - infra.aap_configuration.controller_projects
     - infra.aap_configuration.controller_job_templates
-

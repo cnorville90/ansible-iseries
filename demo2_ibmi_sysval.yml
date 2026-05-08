@@ -1,0 +1,78 @@
+---
+- name: "Demo 2 — IBM i System Value Audit"
+  hosts: iseries
+  gather_facts: false
+
+  tasks:
+
+    - name: Read security and password system values
+      ibm.power_ibmi.ibmi_sysval:
+        sysvalue:
+          - { name: 'QSECURITY' }
+          - { name: 'QPWDLVL' }
+          - { name: 'QPWDMINLEN' }
+          - { name: 'QPWDMAXLEN' }
+          - { name: 'QPWDEXPITV' }
+          - { name: 'QMAXSIGN' }
+          - { name: 'QMAXSGNACN' }
+          - { name: 'QLMTSECOFR' }
+          - { name: 'QINACTITV' }
+          - { name: 'QAUDCTL' }
+      register: security_vals
+
+    - name: Read locale and system identity values
+      ibm.power_ibmi.ibmi_sysval:
+        sysvalue:
+          - { name: 'QSRLNBR' }
+          - { name: 'QMODEL' }
+          - { name: 'QCCSID' }
+          - { name: 'QLANGID' }
+          - { name: 'QCNTRYID' }
+          - { name: 'QTIMZON' }
+          - { name: 'QUTCOFFSET' }
+          - { name: 'QDATE' }
+          - { name: 'QTIME' }
+      register: identity_vals
+
+    - name: Build sysval lookup dict
+      ansible.builtin.set_fact:
+        sysvals: >-
+          {{
+            (security_vals.sysval + identity_vals.sysval)
+            | items2dict(key_name='name', value_name='value')
+          }}
+
+    - name: Display system identity
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " System Identity"
+          - "=============================="
+          - "Serial Number  : {{ sysvals.QSRLNBR | trim }}"
+          - "Model          : {{ sysvals.QMODEL | trim }}"
+          - "CCSID          : {{ sysvals.QCCSID }}"
+          - "Language       : {{ sysvals.QLANGID }}"
+          - "Country        : {{ sysvals.QCNTRYID }}"
+          - "Time Zone      : {{ sysvals.QTIMZON }}"
+          - "UTC Offset     : {{ sysvals.QUTCOFFSET }}"
+          - "Date           : {{ sysvals.QDATE }}"
+          - "Time           : {{ sysvals.QTIME }}"
+          - "=============================="
+
+    - name: Display security audit
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " Security Audit"
+          - "=============================="
+          - "Security Level : {{ sysvals.QSECURITY }}"
+          - "Password Level : {{ sysvals.QPWDLVL }}"
+          - "Pwd Min Length : {{ sysvals.QPWDMINLEN }}"
+          - "Pwd Max Length : {{ sysvals.QPWDMAXLEN }}"
+          - "Pwd Expiry     : {{ sysvals.QPWDEXPITV | trim }} days"
+          - "Max Sign-On    : {{ sysvals.QMAXSIGN | trim }}"
+          - "Max Signon Act : {{ sysvals.QMAXSGNACN }}"
+          - "Limit SecOfr   : {{ sysvals.QLMTSECOFR }}"
+          - "Inactivity Tmr : {{ sysvals.QINACTITV | trim }} min"
+          - "Audit Control  : {{ sysvals.QAUDCTL | trim }}"
+          - "=============================="

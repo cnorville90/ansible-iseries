@@ -48,7 +48,7 @@ ansible_python_interpreter=/QOpenSys/pkgs/bin/python3
 **Goal:** Read and report key system values such as `QSECURITY`, `QCCSID`, `QTIMZON`.
 
 - **Modules:** `ibmi_sysval`
-- **Status:** [ ] Not started
+- **Status:** [x] Complete
 - **Talking points:**
   - Compliance reporting and config drift detection
   - Exportable as structured data for CMDB or ticketing integration
