@@ -12,11 +12,13 @@ at **pub400.com**.
 | Requirement | Details |
 |---|---|
 | Ansible Automation Platform | 2.6 — your own instance (any deployment) |
-| Red Hat account | Access to [console.redhat.com](https://console.redhat.com) for Automation Hub |
 | pub400.com account | Free — register at [pub400.com](https://www.pub400.com) |
-| Container registry | Quay.io account (free) to host the custom Execution Environment |
-| Workstation tools | `ansible-navigator`, `ansible-builder` v3, `podman` |
+| Workstation tools | `ansible-navigator` |
 | Python | 3.9+ on your workstation |
+
+> **No Automation Hub token or container build required.** A pre-built Execution Environment
+> is publicly available at `quay.io/cnorvill/ee-iseries:latest` and includes
+> `ibm.power_ibmi`, `ansible.utils`, and `infra.aap_configuration`.
 
 ---
 
@@ -94,55 +96,7 @@ To generate an AAP OAuth token:
 
 ---
 
-## Step 5 — Build the Custom Execution Environment
-
-The demo requires a custom EE with `ibm.power_ibmi`, `ansible.utils`, and
-`infra.aap_configuration` from Automation Hub.
-
-### 5a — Get an Automation Hub Offline Token
-
-1. Go to [https://console.redhat.com/ansible/automation-hub/token](https://console.redhat.com/ansible/automation-hub/token)
-2. Click **Load Token** and copy the offline token
-
-### 5b — Configure Automation Hub Authentication
-
-Create `ee-build/ansible.cfg` (this file is gitignored — do not commit it):
-
-```ini
-[galaxy]
-server_list = automation_hub, validated
-
-[galaxy_server.automation_hub]
-url = https://cloud.redhat.com/api/automation-hub/
-auth_url = https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
-token = YOUR_OFFLINE_TOKEN_HERE
-
-[galaxy_server.validated]
-url = https://cloud.redhat.com/api/automation-hub/content/validated/
-auth_url = https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token
-token = YOUR_OFFLINE_TOKEN_HERE
-```
-
-### 5c — Build and Push the EE
-
-```bash
-cd ee-build
-bash build.sh
-```
-
-Tag and push to your Quay.io registry:
-
-```bash
-podman tag localhost/ee-iseries:latest quay.io/YOUR_QUAY_USERNAME/ee-iseries:latest
-podman push quay.io/YOUR_QUAY_USERNAME/ee-iseries:latest
-```
-
-Make the Quay.io repository **public** so AAP can pull it without credentials:
-- Log in to [quay.io](https://quay.io) → your repository → **Settings** → **Make Public**
-
----
-
-## Step 6 — Update the AAP Config Playbook
+## Step 5 — Update the AAP Config Playbook
 
 Edit `demo_iseries_aap_config.yml` and replace the following values:
 
@@ -151,15 +105,11 @@ vars:
   aap_hostname: https://YOUR_AAP_HOSTNAME        # your AAP Controller URL
   aap_username: YOUR_AAP_USERNAME                # your AAP login
 
-  controller_execution_environments:
-    - name: "ee-iseries"
-      image: quay.io/YOUR_QUAY_USERNAME/ee-iseries:latest   # your EE image
-
   controller_credentials:
     - name: "pub400-ssh"
       inputs:
         username: YOUR_PUB400_USERNAME            # e.g. JSMITH
-        ssh_key_data: "{{ lookup('file', 'id_rsa_pub400') }}"  # path to your private key
+        ssh_key_data: "{{ lookup('file', 'id_rsa_pub400') }}"
 
   controller_hosts:
     - name: pub400.com
@@ -168,11 +118,11 @@ vars:
         ansible_user: YOUR_PUB400_USERNAME        # e.g. JSMITH
         ansible_port: 2222
         ansible_python_interpreter: /QOpenSys/pkgs/bin/python3.6
-
-  controller_projects:
-    - name: "ansible-iseries"
-      scm_url: "https://github.com/YOUR_GITHUB_USERNAME/ansible-iseries.git"
 ```
+
+> **The EE image (`quay.io/cnorvill/ee-iseries:latest`) and project SCM URL do not need
+> to change** — leave them as-is. AAP will pull the shared public EE and clone the
+> upstream repo directly.
 
 Copy your SSH private key into the project directory (gitignored):
 
@@ -182,19 +132,7 @@ cp ~/.ssh/id_rsa_pub400 ./id_rsa_pub400
 
 ---
 
-## Step 7 — Configure ansible-navigator
-
-Edit `ansible-navigator.yml` and update the EE image to match yours:
-
-```yaml
-ansible-navigator:
-  execution-environment:
-    image: quay.io/YOUR_QUAY_USERNAME/ee-iseries:latest
-```
-
----
-
-## Step 8 — Run the AAP Config Playbook
+## Step 6 — Run the AAP Config Playbook
 
 This single playbook creates all inventories, credentials, projects, and job
 templates in your AAP Controller:
@@ -211,7 +149,7 @@ may take 30–60 seconds while AAP clones the GitHub repo.
 
 ---
 
-## Step 9 — Verify the Demo Suite
+## Step 7 — Verify the Demo Suite
 
 Run a quick smoke test from the CLI to confirm connectivity:
 
@@ -256,7 +194,6 @@ authority requirements.
 |---|---|
 | `.vault_pass` | Vault password file |
 | `id_rsa_pub400` | SSH private key for pub400.com |
-| `ee-build/ansible.cfg` | Automation Hub token for EE build |
 | `vault_vars.yml` | Encrypted AAP token |
 
 ---
@@ -265,9 +202,6 @@ authority requirements.
 
 **`itoolkit` errors / Python not found**
 Ensure `ansible_python_interpreter` is set to `/QOpenSys/pkgs/bin/python3.6` in inventory.
-
-**EE pull fails in AAP**
-Confirm your Quay.io repository is set to **Public**. AAP pulls without credentials by default.
 
 **AAP config roles fail with 401**
 Regenerate your AAP OAuth token — tokens can expire. Update `vault_vars.yml`.
