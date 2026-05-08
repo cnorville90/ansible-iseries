@@ -3,3 +3,4 @@ key.pem
 id_rsa_apd
 ee-build/ansible.cfg
 ansible-navigator.log
+ee-build/context/
