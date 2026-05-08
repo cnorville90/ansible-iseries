@@ -55,25 +55,25 @@ ansible_python_interpreter=/QOpenSys/pkgs/bin/python3
 
 ---
 
-### Demo 3 — CL Command Execution (`ibmi_cl_command`)
-**Goal:** Run native IBM i CL commands (e.g., `DSPSYSSTS`, `WRKACTJOB`) from a playbook.
+### Demo 3 — SQL Query Reporting (`ibmi_sql_query`)
+**Goal:** Query DB2 for i catalog tables — list libraries, users, or active jobs.
+
+- **Modules:** `ibmi_sql_query`
+- **Status:** [x] Complete
+- **Talking points:**
+  - Zero-footprint data extraction directly from the DB2 catalog
+  - Feed results into reports, dashboards, or downstream automation decisions
+
+---
+
+### Demo 4 — CL Command Execution (`ibmi_cl_command`)
+**Goal:** Run native IBM i CL commands (e.g., `CHKOBJ`, `DSPLIBD`) from a playbook.
 
 - **Modules:** `ibmi_cl_command`
 - **Status:** [ ] Not started
 - **Talking points:**
   - Bridge traditional AS/400 operations into modern automation workflows
   - Operators can wrap any existing CL procedures without rewriting them
-
----
-
-### Demo 4 — SQL Query Reporting (`ibmi_sql_query`)
-**Goal:** Query DB2 for i catalog tables — list libraries, users, or active jobs.
-
-- **Modules:** `ibmi_sql_query`
-- **Status:** [ ] Not started
-- **Talking points:**
-  - Zero-footprint data extraction directly from the DB2 catalog
-  - Feed results into reports, dashboards, or downstream automation decisions
 
 ---
 

@@ -81,6 +81,17 @@
           - "pub400-ssh"
         ask_variables_on_launch: false
 
+      - name: "Demo 3 — IBM i SQL Query Reporting"
+        description: "Query DB2 for i catalog tables for active jobs, users, and libraries"
+        organization: Default
+        project: "ansible-iseries"
+        playbook: demo3_ibmi_sql_query.yml
+        inventory: "IBM iSeries — pub400"
+        execution_environment: "ee-iseries"
+        credentials:
+          - "pub400-ssh"
+        ask_variables_on_launch: false
+
   roles:
     - infra.aap_configuration.controller_execution_environments
     - infra.aap_configuration.controller_credentials

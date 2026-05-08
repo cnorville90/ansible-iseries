@@ -1,0 +1,68 @@
+---
+- name: "Demo 3 — IBM i CL Command Execution"
+  hosts: iseries
+  gather_facts: false
+
+  tasks:
+
+    - name: Check QGPL library exists
+      ibm.power_ibmi.ibmi_cl_command:
+        cmd: "CHKOBJ OBJ(QSYS/QGPL) OBJTYPE(*LIB)"
+      register: chkobj_qgpl
+
+    - name: Check QTEMP library exists
+      ibm.power_ibmi.ibmi_cl_command:
+        cmd: "CHKOBJ OBJ(QSYS/QTEMP) OBJTYPE(*LIB)"
+      register: chkobj_qtemp
+
+    - name: Check QSYS2 library exists
+      ibm.power_ibmi.ibmi_cl_command:
+        cmd: "CHKOBJ OBJ(QSYS/QSYS2) OBJTYPE(*LIB)"
+      register: chkobj_qsys2
+
+    - name: Display library check results
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " CHKOBJ — System Library Audit"
+          - "=============================="
+          - "QGPL  : {{ 'EXISTS' if chkobj_qgpl.rc == 0 else 'NOT FOUND' }}"
+          - "QTEMP : {{ 'EXISTS' if chkobj_qtemp.rc == 0 else 'NOT FOUND' }}"
+          - "QSYS2 : {{ 'EXISTS' if chkobj_qsys2.rc == 0 else 'NOT FOUND' }}"
+          - "=============================="
+
+    - name: Check QCLSRC source file exists in QGPL
+      ibm.power_ibmi.ibmi_cl_command:
+        cmd: "CHKOBJ OBJ(QGPL/QCLSRC) OBJTYPE(*FILE)"
+      register: chkobj_qclsrc
+      ignore_errors: true
+
+    - name: Check QCMDSRC source file exists in QGPL
+      ibm.power_ibmi.ibmi_cl_command:
+        cmd: "CHKOBJ OBJ(QGPL/QCMDSRC) OBJTYPE(*FILE)"
+      register: chkobj_qcmdsrc
+      ignore_errors: true
+
+    - name: Display QGPL source file inventory
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " CHKOBJ — QGPL Source Files"
+          - "=============================="
+          - "QCLSRC  : {{ 'EXISTS' if chkobj_qclsrc.rc == 0 else 'NOT FOUND' }}"
+          - "QCMDSRC : {{ 'EXISTS' if chkobj_qcmdsrc.rc == 0 else 'NOT FOUND' }}"
+          - "=============================="
+
+    - name: Verify QSYSOPR message queue exists
+      ibm.power_ibmi.ibmi_cl_command:
+        cmd: "CHKOBJ OBJ(QSYS/QSYSOPR) OBJTYPE(*MSGQ)"
+      register: chkobj_qsysopr
+
+    - name: Display operator message queue status
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " CHKOBJ — Operator Message Queue"
+          - "=============================="
+          - "QSYSOPR : {{ 'EXISTS' if chkobj_qsysopr.rc == 0 else 'NOT FOUND' }}"
+          - "=============================="

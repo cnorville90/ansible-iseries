@@ -1,0 +1,71 @@
+---
+- name: "Demo 3 — IBM i SQL Query Reporting"
+  hosts: iseries
+  gather_facts: false
+
+  tasks:
+
+    - name: Query active jobs from DB2 catalog
+      ibm.power_ibmi.ibmi_sql_query:
+        sql: >
+          SELECT JOB_NAME, JOB_TYPE, JOB_STATUS, JOB_ACTIVE_TIME
+          FROM TABLE(QSYS2.ACTIVE_JOB_INFO(SUBSYSTEM_LIST_FILTER => 'QINTER,QBATCH'))
+          ORDER BY JOB_ACTIVE_TIME DESC
+          FETCH FIRST 10 ROWS ONLY
+      register: active_jobs
+
+    - name: Display active jobs
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " Top 10 Active Jobs"
+          - "=============================="
+          - "{{ item.JOB_NAME }} | {{ item.JOB_TYPE }} | {{ item.JOB_STATUS }} | {{ item.JOB_ACTIVE_TIME }}"
+      loop: "{{ active_jobs.row }}"
+      loop_control:
+        label: "{{ item.JOB_NAME }}"
+
+    - name: Query user profiles from DB2 catalog
+      ibm.power_ibmi.ibmi_sql_query:
+        sql: >
+          SELECT AUTHORIZATION_NAME, STATUS, PREVIOUS_SIGNON,
+                 MAXIMUM_ALLOWED_STORAGE, STORAGE_USED
+          FROM QSYS2.USER_INFO
+          WHERE STATUS = '*ENABLED'
+          AND AUTHORIZATION_NAME NOT LIKE 'Q%'
+          ORDER BY PREVIOUS_SIGNON DESC
+          FETCH FIRST 10 ROWS ONLY
+      register: user_profiles
+
+    - name: Display user profiles
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " Enabled Non-IBM User Profiles"
+          - "=============================="
+          - "{{ item.AUTHORIZATION_NAME }} | Last Signon: {{ item.PREVIOUS_SIGNON }} | Storage: {{ item.STORAGE_USED }}/{{ item.MAXIMUM_ALLOWED_STORAGE }}"
+      loop: "{{ user_profiles.row }}"
+      loop_control:
+        label: "{{ item.AUTHORIZATION_NAME }}"
+
+    - name: Query system libraries
+      ibm.power_ibmi.ibmi_sql_query:
+        sql: >
+          SELECT SCHEMA_NAME, SCHEMA_TEXT, SCHEMA_OWNER,
+                 SYSTEM_SCHEMA_NAME
+          FROM QSYS2.SYSSCHEMAS
+          WHERE SCHEMA_NAME NOT LIKE 'Q%'
+          ORDER BY SCHEMA_NAME
+          FETCH FIRST 10 ROWS ONLY
+      register: libraries
+
+    - name: Display user libraries
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " User Libraries (non-IBM)"
+          - "=============================="
+          - "{{ item.SCHEMA_NAME }} | Owner: {{ item.SCHEMA_OWNER }} | System Name: {{ item.SYSTEM_SCHEMA_NAME }}"
+      loop: "{{ libraries.row }}"
+      loop_control:
+        label: "{{ item.SCHEMA_NAME }}"
