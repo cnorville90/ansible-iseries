@@ -1,0 +1,81 @@
+---
+- name: "Advanced Demo B — IBM i Object Save & Restore"
+  hosts: iseries
+  gather_facts: false
+
+  vars:
+    save_library: APPLIB
+    save_file_lib: QGPL
+    save_file_name: ANSISAVE
+
+  tasks:
+
+    - name: Create save file
+      ibm.power_ibmi.ibmi_cl_command:
+        cmd: "CRTSAVF FILE({{ save_file_lib }}/{{ save_file_name }}) TEXT('Ansible backup save file')"
+      register: crtsavf_result
+      ignore_errors: true
+
+    - name: Save library to save file
+      ibm.power_ibmi.ibmi_object_save:
+        object_lib: "{{ save_library }}"
+        object_names: "*ALL"
+        object_types: "*ALL"
+        savefile_name: "{{ save_file_name }}"
+        savefile_lib: "{{ save_file_lib }}"
+        format: "*SAVF"
+      register: save_result
+
+    - name: Display save result
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " Object Save Result"
+          - "=============================="
+          - "Library    : {{ save_library }}"
+          - "Save File  : {{ save_file_lib }}/{{ save_file_name }}"
+          - "RC         : {{ save_result.rc }}"
+          - "Status     : {{ 'SUCCESS' if save_result.rc == 0 else 'FAILED' }}"
+          - "=============================="
+
+    - name: Fetch save file to controller
+      ibm.power_ibmi.ibmi_fetch:
+        src: "/QSYS.LIB/{{ save_file_lib }}.LIB/{{ save_file_name }}.FILE"
+        dest: "/tmp/"
+        flat: true
+      register: fetch_result
+
+    - name: Display fetch result
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " Fetch to Controller"
+          - "=============================="
+          - "Source : {{ fetch_result.src }}"
+          - "Dest   : {{ fetch_result.dest }}"
+          - "Size   : {{ fetch_result.size }} bytes"
+          - "=============================="
+
+    - name: Restore library from save file
+      ibm.power_ibmi.ibmi_object_restore:
+        object_names: "*ALL"
+        object_lib: "{{ save_library }}"
+        object_types: "*ALL"
+        savefile_name: "{{ save_file_name }}"
+        savefile_lib: "{{ save_file_lib }}"
+      register: restore_result
+
+    - name: Display restore result
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " Object Restore Result"
+          - "=============================="
+          - "Library    : {{ save_library }}"
+          - "RC         : {{ restore_result.rc }}"
+          - "Status     : {{ 'SUCCESS' if restore_result.rc == 0 else 'FAILED' }}"
+          - "=============================="
+
+    - name: Clean up save file
+      ibm.power_ibmi.ibmi_cl_command:
+        cmd: "DLTSAVF FILE({{ save_file_lib }}/{{ save_file_name }})"

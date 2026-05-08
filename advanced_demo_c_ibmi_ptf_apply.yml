@@ -1,0 +1,72 @@
+---
+- name: "Advanced Demo C — IBM i PTF Download & Apply"
+  hosts: iseries
+  gather_facts: false
+
+  vars:
+    ptf_group: "SF99730"
+    ptf_order_type: "*PTFGRP"
+
+  tasks:
+
+    - name: Check current PTF group level before apply
+      ibm.power_ibmi.ibmi_fix_group_check:
+        groups:
+          - "{{ ptf_group }}"
+      register: ptf_before
+
+    - name: Display current PTF level
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " PTF Group Status — Before"
+          - "=============================="
+          - "Group       : {{ ptf_before.group_info[0].ptf_group_number }}"
+          - "Description : {{ ptf_before.group_info[0].description }}"
+          - "Level       : {{ ptf_before.group_info[0].ptf_group_level }}"
+          - "Release     : {{ ptf_before.group_info[0].release }}"
+          - "Released    : {{ ptf_before.group_info[0].release_date }}"
+          - "=============================="
+
+    - name: Order and download PTF group from IBM Fix Central
+      ibm.power_ibmi.ibmi_fix_network_install_client:
+        operation: "*DOWNLOAD"
+        rollback: true
+        fix_list:
+          - "{{ ptf_group }}"
+        fix_omit_list: []
+      register: download_result
+      ignore_errors: true
+
+    - name: Display download result
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " PTF Download Result"
+          - "=============================="
+          - "RC     : {{ download_result.rc | default('N/A') }}"
+          - "Status : {{ 'SUCCESS' if (download_result.rc | default(1)) == 0 else 'FAILED / NOT AUTHORIZED' }}"
+          - "=============================="
+
+    - name: Apply downloaded PTFs (delayed — requires IPL to fully activate)
+      ibm.power_ibmi.ibmi_fix:
+        operation: "*APPLY"
+        fix_list:
+          - "{{ ptf_group }}"
+        delayed_option: "*YES"
+        temp_or_perm: "*TEMP"
+      register: apply_result
+      ignore_errors: true
+      when: download_result.rc | default(1) == 0
+
+    - name: Display apply result
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " PTF Apply Result"
+          - "=============================="
+          - "RC          : {{ apply_result.rc | default('SKIPPED') }}"
+          - "Status      : {{ 'APPLIED (IPL required to activate)' if (apply_result.rc | default(1)) == 0 else 'SKIPPED / FAILED' }}"
+          - "Delayed     : *YES — will activate at next IPL"
+          - "=============================="
+      when: apply_result is defined

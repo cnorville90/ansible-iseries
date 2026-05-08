@@ -102,6 +102,24 @@ against a customer's own IBM i environment.
   - Backup automation replacing manual `SAVLIB` / `RSTLIB` operator steps
   - Migration pipeline pattern: save → transfer → restore across systems
 
+### Advanced Demo C — PTF Download & Apply (`ibmi_fix_network_install_client` / `ibmi_fix`)
+**Goal:** Download a PTF group from IBM Fix Central and apply it with delayed activation.
+
+- **Modules:** `ibmi_fix_group_check`, `ibmi_fix_network_install_client`, `ibmi_fix`
+- **Requires:** `*IOSYSCFG` / `*ALLOBJ`
+- **Talking points:**
+  - Closes the loop from Demo 5 — compliance check → download → apply in one playbook
+  - Delayed apply (`*YES`) stages PTFs safely without forcing an immediate IPL
+
+### Advanced Demo D — Subsystem & Job Queue Control
+**Goal:** Hold a job queue, verify the state change via SQL, then release — full maintenance window pattern.
+
+- **Modules:** `ibmi_display_subsystem`, `ibmi_cl_command`, `ibmi_sql_query`
+- **Requires:** `*JOBCTL` special authority
+- **Talking points:**
+  - Drain queues before patching or backup, release when done — operator tasks automated
+  - SQL verification step proves state before proceeding — not just fire-and-forget
+
 ---
 
 ## Suggested Build Order
