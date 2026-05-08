@@ -56,6 +56,7 @@
         scm_branch: main
         scm_clean: true
         scm_update_on_launch: true
+        wait: true
 
     controller_templates:
       - name: "Demo 1 — IBM i System Discovery"
@@ -87,4 +88,5 @@
     - infra.aap_configuration.controller_hosts
     - infra.aap_configuration.controller_host_groups
     - infra.aap_configuration.controller_projects
+    - infra.aap_configuration.controller_project_update
     - infra.aap_configuration.controller_job_templates
