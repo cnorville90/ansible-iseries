@@ -56,43 +56,21 @@ the public iSeries system at **pub400.com**.
 
 ---
 
-### Demo 4 — User Profile Management (`ibmi_user_and_group`)
-**Goal:** Create a demo user profile with defined attributes, then remove it — idempotently.
+### Demo 4 — Job & Subsystem Operations (`ibmi_job` / `ibmi_display_subsystem`)
+**Goal:** Query active jobs and display subsystem status.
 
-- **Modules:** `ibmi_user_and_group`
+- **Modules:** `ibmi_job`, `ibmi_display_subsystem`
 - **Status:** [ ] Not started
 - **Talking points:**
-  - Day-2 lifecycle operations: create, modify, disable, delete
-  - RBAC automation with full audit trail via AAP job history
-
----
-
-### Demo 5 — Object Save & Restore (`ibmi_object_save` / `ibmi_object_restore`)
-**Goal:** Save a library or object to a save file, fetch it locally, and restore it.
-
-- **Modules:** `ibmi_object_save`, `ibmi_object_restore`, `ibmi_fetch`
-- **Status:** [ ] Not started
-- **Talking points:**
-  - Backup automation replacing manual `SAVLIB` / `RSTLIB` operator steps
-  - Migration pipeline pattern: save → transfer → restore across systems
-
----
-
-### Demo 6 — Job & Subsystem Operations
-**Goal:** Query active jobs, display subsystem status, and submit a batch job.
-
-- **Modules:** `ibmi_job`, `ibmi_display_subsystem`, `ibmi_submit_job`
-- **Status:** [ ] Not started
-- **Talking points:**
-  - Workload management and scheduled automation
+  - Workload visibility and operational reporting
   - Replace manual operator tasks with repeatable, audited playbook runs
 
 ---
 
-### Demo 7 — PTF / Fix Compliance (`ibmi_fix_group_check` / `ibmi_fix_compare`)
-**Goal:** Check installed PTF groups against PSP server recommendations and report gaps.
+### Demo 5 — PTF / Fix Compliance (`ibmi_fix_group_check`)
+**Goal:** Check installed PTF groups and report fix levels.
 
-- **Modules:** `ibmi_fix_group_check`, `ibmi_fix_compare`
+- **Modules:** `ibmi_fix_group_check`
 - **Status:** [ ] Not started
 - **Talking points:**
   - Automated security patch compliance reporting
@@ -100,12 +78,37 @@ the public iSeries system at **pub400.com**.
 
 ---
 
+## Requires *SECADM Authority (Customer System Demos)
+
+The following playbooks are built and ready but require elevated authority
+not available on the shared pub400.com system. Use these when presenting
+against a customer's own IBM i environment.
+
+### Advanced Demo A — User Profile Management (`ibmi_user_and_group`)
+**Goal:** Create a demo user profile with defined attributes, then remove it — idempotently.
+
+- **Modules:** `ibmi_user_and_group`
+- **Requires:** `*SECADM` special authority
+- **Talking points:**
+  - Day-2 lifecycle operations: create, modify, disable, delete
+  - RBAC automation with full audit trail via AAP job history
+
+### Advanced Demo B — Object Save & Restore (`ibmi_object_save` / `ibmi_object_restore`)
+**Goal:** Save a library or object to a save file, fetch it locally, and restore it.
+
+- **Modules:** `ibmi_object_save`, `ibmi_object_restore`, `ibmi_fetch`
+- **Requires:** `*SAVSYS` or object authority
+- **Talking points:**
+  - Backup automation replacing manual `SAVLIB` / `RSTLIB` operator steps
+  - Migration pipeline pattern: save → transfer → restore across systems
+
+---
+
 ## Suggested Build Order
 
 ```
-Demo 1 (facts) → Demo 2 (sysval) → Demo 3 (SQL) → Demo 4 (users)
-     → Demo 5 (save/restore) → Demo 6 (jobs) → Demo 7 (PTF)
+Demo 1 (facts) → Demo 2 (sysval) → Demo 3 (SQL) → Demo 4 (jobs) → Demo 5 (PTF)
 ```
 
 Start with read-only, non-destructive demos (1–3) to build confidence and
-validate access, then progress to state-changing operations (4–7).
+validate access, then progress to operational demos (4–5).

@@ -1,0 +1,91 @@
+---
+- name: "Demo 4 — IBM i User Profile Management"
+  hosts: iseries
+  gather_facts: false
+
+  vars:
+    demo_user: ANSIDEMO
+    demo_password: Ansible1!
+    demo_text: "Ansible Automation Demo User"
+
+  tasks:
+
+    - name: Create demo user profile
+      ibm.power_ibmi.ibmi_user_and_group:
+        operation: create
+        user: "{{ demo_user }}"
+        password: "{{ demo_password }}"
+        user_text: "{{ demo_text }}"
+        status: "*ENABLED"
+        user_class: "*USER"
+        password_expiration_interval: "30"
+        max_storage: "*NOMAX"
+      register: create_result
+
+    - name: Display create result
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " CREATE User Profile"
+          - "=============================="
+          - "User   : {{ demo_user }}"
+          - "RC     : {{ create_result.rc }}"
+          - "Status : {{ 'CREATED' if create_result.rc == 0 else 'FAILED' }}"
+          - "=============================="
+
+    - name: Verify user exists via SQL
+      ibm.power_ibmi.ibmi_sql_query:
+        sql: >
+          SELECT AUTHORIZATION_NAME, STATUS, TEXT_DESCRIPTION,
+                 USER_CLASS_NAME, PREVIOUS_SIGNON
+          FROM QSYS2.USER_INFO
+          WHERE AUTHORIZATION_NAME = '{{ demo_user }}'
+      register: user_check
+
+    - name: Display user details
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " User Profile Verification"
+          - "=============================="
+          - "User       : {{ user_check.row[0].AUTHORIZATION_NAME }}"
+          - "Status     : {{ user_check.row[0].STATUS }}"
+          - "Class      : {{ user_check.row[0].USER_CLASS_NAME }}"
+          - "Description: {{ user_check.row[0].TEXT_DESCRIPTION }}"
+          - "=============================="
+      when: user_check.row | length > 0
+
+    - name: Disable demo user profile
+      ibm.power_ibmi.ibmi_user_and_group:
+        operation: change
+        user: "{{ demo_user }}"
+        status: "*DISABLED"
+      register: disable_result
+
+    - name: Display disable result
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " DISABLE User Profile"
+          - "=============================="
+          - "User   : {{ demo_user }}"
+          - "RC     : {{ disable_result.rc }}"
+          - "Status : {{ 'DISABLED' if disable_result.rc == 0 else 'FAILED' }}"
+          - "=============================="
+
+    - name: Delete demo user profile
+      ibm.power_ibmi.ibmi_user_and_group:
+        operation: delete
+        user: "{{ demo_user }}"
+      register: delete_result
+
+    - name: Display delete result
+      ansible.builtin.debug:
+        msg:
+          - "=============================="
+          - " DELETE User Profile"
+          - "=============================="
+          - "User   : {{ demo_user }}"
+          - "RC     : {{ delete_result.rc }}"
+          - "Status : {{ 'DELETED' if delete_result.rc == 0 else 'FAILED' }}"
+          - "=============================="
